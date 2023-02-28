@@ -26,7 +26,6 @@ class RBTree {
 
         return n;
     }
-
     
     public:
         RBTree() {
