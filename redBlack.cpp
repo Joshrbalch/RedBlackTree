@@ -37,7 +37,9 @@ class RBTree {
         }
 
         RBTree(keytype k[], valuetype V[], int s) {
-
+            for(int i = 0; i < s; i++) {
+                insert(k[i], v[i]);
+            }
         }
 
         ~RBTree() {
@@ -53,11 +55,13 @@ class RBTree {
                 root = newNode();
                 root->key = k;
                 root->value = v;
+                size++;
 
                 return;
             }
 
             else {
+                size++;
                 Node* temp = root;
 
                 while(1) {
@@ -107,7 +111,7 @@ class RBTree {
                 if(temp == nullptr) {
                     return 0;
                 }
-                
+
                 if(temp->key == k) {
                     if(temp->right != nullptr) {
                         temp = temp->right;
