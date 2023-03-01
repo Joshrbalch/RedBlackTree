@@ -4,7 +4,34 @@ template <class keytype, class valuetype>
 
 class RBTree {
     private:
-    int size;
+    class Node {
+        private:
+        public:
+        keytype key;
+        valuetype value;
+        Node* left;
+        Node* right;
+
+        bool color;
+    };
+
+    void inorderRec(Node* curr) {
+        if (curr == nullptr) {
+            return;
+        }
+ 
+        /* first recur on left child */
+        inorderRec(curr->left);
+    
+        /* then print the data of node */
+        std::cout << curr->key << " ";
+    
+        /* now recur on right child */
+        inorderRec(curr->right);
+    }
+    
+    public:
+    int sizeNum;
     Node* root;
     int leftNum;
     int rightNum;
@@ -30,14 +57,14 @@ class RBTree {
     public:
         RBTree() {
             root = nullptr;
-            size = 0;
+            sizeNum = 0;
             leftNum = 0;
             rightNum = 0;
         }
 
         RBTree(keytype k[], valuetype V[], int s) {
             for(int i = 0; i < s; i++) {
-                insert(k[i], v[i]);
+                insert(k[i], V[i]);
             }
         }
 
@@ -50,17 +77,17 @@ class RBTree {
         }
 
         void insert(keytype k, valuetype v) {
-            if(size = 0) {
+            if(sizeNum == 0) {
                 root = newNode();
                 root->key = k;
                 root->value = v;
-                size++;
+                sizeNum++;
 
                 return;
             }
 
             else {
-                size++;
+                sizeNum++;
                 Node* temp = root;
 
                 while(1) {
@@ -68,6 +95,7 @@ class RBTree {
                         if(temp->left == nullptr) {
                             Node* n = newNode(k, v);
                             temp->left = n;
+                            leftNum++;
                             return;
                         }
 
@@ -80,6 +108,7 @@ class RBTree {
                         if(temp->right == nullptr) {
                             Node* n = newNode(k, v);
                             temp->right = n;
+                            rightNum++;
                             return;
                         }
 
@@ -92,11 +121,11 @@ class RBTree {
         }
 
         int remove(keytype k) {
-
+            return 0;
         }
 
         int rank(keytype k) {
-
+            return 0;
         }
 
         keytype select(int pos) {
@@ -135,7 +164,7 @@ class RBTree {
         }
 
         int size() {
-            return size;
+            return sizeNum;
         }
 
         void preorder() {
@@ -143,10 +172,34 @@ class RBTree {
         }
 
         void inorder() {
-
+            inorderRec(root);
+            std::cout << std::endl;
         }
 
         void postorder() {
+
+        }
+
+        void printBalance() {
+            std::cout << "LEFT: " << leftNum << std::endl;
+            std::cout << "RIGHT: " << rightNum << std::endl;
+        }
+
+        void help() {
+            std::cout << "FUNCTIONALITY:" << std::endl;
+            std::cout << "\t" << "search(keytype k)" << std::endl;
+            std::cout << "\t" << "insert(keytype k, valuetype v)" << std::endl;
+            std::cout << "\t" << "remove(keytype k)" << std::endl;
+            std::cout << "\t" << "rank(keytype k)" << std::endl;
+            std::cout << "\t" << "select(int pos)" << std::endl;
+            std::cout << "\t" << "successor(keytype k)" << std::endl;
+            std::cout << "\t" << "predecessor(keytype k)" << std::endl;
+            std::cout << "\t" << "size()" << std::endl;
+            std::cout << "\t" << "preorder()" << std::endl;
+            std::cout << "\t" << "inorder()" << std::endl;
+            std::cout << "\t" << "postorder()" << std::endl;
+            std::cout << "\t" << "printBalance()" << std::endl;
+            std::cout << "---------------------------------------" << std::endl;
 
         }
 };
