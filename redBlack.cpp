@@ -125,7 +125,33 @@ class RBTree {
         }
 
         int rank(keytype k) {
-            return 0;
+            return rankRec(root, k, leftNum, rightNum);
+        }
+
+        int rankRec(Node* curr, keytype k, int leftNum, int rightNum) {
+            if(curr == nullptr) {
+                return 0;
+            }
+
+            if(k == curr->key) {
+                return leftNum + 1 + count(curr->left);
+            }
+
+            else if(k < root->key) {
+                return rankRec(curr->left, k, leftNum, leftNum + rightNum);
+            }
+
+            else {
+                return leftNum + 1 + count(root->left) + rankRec(curr->right, k, leftNum + count(curr->left) + 1, rightNum);
+            }
+        }
+
+        int count(Node* curr) {
+            if(curr == nullptr) {
+                return 0;
+            }
+
+            return 1 + count(curr->left) + count(curr->right);
         }
 
         keytype select(int pos) {
@@ -160,7 +186,21 @@ class RBTree {
         }
 
         keytype *predecessor(keytype k) {
+            Node* pred = nullptr;
+            Node* curr = root;
 
+            while(curr != nullptr) {
+                if(root->key >= k) {
+                    curr = curr->left;
+                }
+
+                else {
+                    pred = curr;
+                    curr = curr->right;
+                }
+            }
+
+            return pred->key;
         }
 
         int size() {
