@@ -248,55 +248,6 @@ class RBTree {
             leftNum = countNodes(root->left);
             rightNum = countNodes(root->right);
             sizeNum++;
-            // Node *node = new Node;
-            // node->key = k;
-            // node->value = v;
-            // node->left = nullptr;
-            // node->right = nullptr;
-            // node->parent = nullptr;
-            // node->is_red = true;
-
-            // if(!root) {
-            //     root = node;
-            //     node->is_red = false;
-            //     return;
-            // }
-
-            // if(k > root->key) {
-            //     rightNum++;
-            // }
-
-            // else {
-            //     leftNum++;
-            // }
-
-            // Node* curr = root;
-
-            // while(curr) {
-            //     if(k < curr->key) {
-            //         if(!curr->left) {
-            //             curr->left = node;
-            //             node->parent = curr;
-            //             break;
-            //         }
-
-            //         else {
-            //             curr = curr->left;
-            //         }
-            //     }
-
-            //     else {
-            //         if(!curr->right) {
-            //             curr->right = node;
-            //             node->parent = curr;
-            //             break;
-            //         }
-
-            //         else curr = curr->right;
-            //     }
-            // }
-
-            // fixViolation(root, node);
         }
 
         int remove(keytype k) {
