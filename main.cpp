@@ -6,20 +6,19 @@ using namespace std;
 int main() {
     RBTree<int, int> tree;
 
-    tree.help();
+    for(int i = 0; i < 18; i++) {
+        tree.insert(i, i);
+    }
+    // tree.insert(1, 1);
+    // tree.insert(2, 2);
+    // tree.insert(3, 3);
+    // tree.insert(4, 4);
+    // tree.insert(5, 5);
 
-    // for(int i = 100; i >= 0; i--) {
-    //     tree.insert(i, i);
-    // }
-    tree.insert(10, 10);
-    tree.insert(1, 1);
-    tree.insert(15, 15);
-
-    cout << tree.rank(1) << tree.rank(10) << tree.rank(15) << endl;
-
-    tree.inorder();
-
+    // cout << tree.rank(1) << tree.rank(10) << tree.rank(15) << endl;
     tree.printBalance();
+    
+    tree.inorder();
 
     return 0;
 }
