@@ -16,6 +16,113 @@ class RBTree {
         bool is_red;
     };
 
+    void transplant(Node* u, Node* v) {
+        if (!u->parent) {
+            root = v;
+        } 
+        
+        else if (u == u->parent->left) {
+            u->parent->left = v;
+        } 
+        
+        else {
+            u->parent->right = v;
+        }
+
+        if (v) {
+            v->parent = u->parent;
+        }
+    }
+
+    Node* findMinimum(Node* node) {
+        while (node->left) {
+            node = node->left;
+        }
+
+        return node;
+    }
+
+    Node* findNode(Node* node, const keytype& k) {
+        if (!node) {
+            return nullptr;
+        }
+        if (k < node->key) {
+            return findNode(node->left, k);
+        } else if (k > node->key) {
+            return findNode(node->right, k);
+        } else {
+            return node;
+        }
+    }
+
+    void fixDoubleBlack(Node* &curr, Node* &node) {
+    if(node == curr) {
+        return;
+    }
+
+    Node* sibling = nullptr;
+
+    if(node == node->parent->left) {
+        sibling = node->parent->right;
+
+        if(sibling && sibling->is_red) {
+            sibling->is_red = false;
+            node->parent->is_red = true;
+            rotateLeft(curr, node->parent);
+            sibling = node->parent->right;
+        }
+
+        if((!sibling->left || !sibling->left->is_red) && (!sibling->right || !sibling->right->is_red)) {
+            sibling->is_red = true;
+            fixDoubleBlack(curr, node->parent);
+        }
+
+        else {
+            if(!sibling->right || !sibling->right->is_red) {
+                sibling->left->is_red = false;
+                sibling->is_red = true;
+                rotateRight(curr, sibling);
+                sibling = node->parent->right;
+            }
+
+            sibling->is_red = node->parent->is_red;
+            node->parent->is_red = false;
+            sibling->right->is_red = false;
+            rotateLeft(curr, node->parent);
+        }
+    }
+
+    else {
+        sibling = node->parent->left;
+
+        if(sibling && sibling->is_red) {
+            sibling->is_red = false;
+            node->parent->is_red = true;
+            rotateRight(curr, node->parent);
+            sibling = node->parent->left;
+        }
+
+        if((!sibling->left || !sibling->left->is_red) && (!sibling->right || !sibling->right->is_red)) {
+            sibling->is_red = true;
+            fixDoubleBlack(curr, node->parent);
+        }
+
+        else {
+            if(!sibling->left || !sibling->left->is_red) {
+                sibling->right->is_red = false;
+                sibling->is_red = true;
+                rotateLeft(curr, sibling);
+                sibling = node->parent->left;
+            }
+
+            sibling->is_red = node->parent->is_red;
+            node->parent->is_red = false;
+            sibling->left->is_red = false;
+            rotateRight(curr, node->parent);
+        }
+    }
+}
+
     int countNodes(Node* root) {
         int num = 1;
 
@@ -255,8 +362,44 @@ class RBTree {
         }
 
         int remove(keytype k) {
-            return 0;
+    Node* node = findNode(root, k);
+    if (node == nullptr) {
+        return 0;
+    }
+
+    // Perform standard BST delete
+    Node* parent = node->parent;
+    if (node->left == nullptr) {
+        transplant(node, node->right);
+    } else if (node->right == nullptr) {
+        transplant(node, node->left);
+    } else {
+        Node* successor = findMinimum(node->right);
+        if (successor->parent != node) {
+            transplant(successor, successor->right);
+            successor->right = node->right;
+            successor->right->parent = successor;
         }
+        transplant(node, successor);
+        successor->left = node->left;
+        successor->left->parent = successor;
+    }
+    delete node;
+
+    // Fix any violations of the Red-Black tree properties
+    if (parent == nullptr) {
+        if (root != nullptr) {
+            root->is_red = false;
+        }
+        return 1;
+    } else if (!node->is_red) {
+        fixDoubleBlack(root, node);
+    }
+
+    return 1;
+}
+
+
 
         int rank(keytype k) {
             return rankRec(root, k, leftNum, rightNum);

@@ -6,7 +6,7 @@ using namespace std;
 int main() {
     RBTree<int, int> tree;
 
-    for(int i = 0; i < 18; i++) {
+    for(int i = 0; i < 5; i++) {
         tree.insert(i, i);
     }
     // tree.insert(1, 1);
@@ -19,6 +19,10 @@ int main() {
     tree.printBalance();
     
     tree.inorder();
+
+    tree.remove(2);
+
+    tree.printBalance();
 
     return 0;
 }
