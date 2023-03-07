@@ -16,6 +16,52 @@ class RBTree {
         bool is_red;
     };
 
+    void preorderRec(Node* curr) {
+        if (curr == nullptr) {
+            return;
+        }
+ 
+        /* first print data of node */
+        std::cout << curr->key << " ";
+    
+        /* then recur on left sutree */
+        preorderRec(curr->left);
+    
+        /* now recur on right subtree */
+        preorderRec(curr->right);
+    }
+
+    void postorderRec(Node* curr) {
+        if (curr == nullptr) {
+            return;
+        }
+ 
+        /* first recur on left child */
+        postorderRec(curr->left);
+    
+        /* now recur on right child */
+        postorderRec(curr->right);
+
+        /* then print the data of node */
+        std::cout << curr->key << " ";
+    }
+
+    keytype selectRec(int pos, Node* k) {
+        int leftCount = countNodes(k->left);
+        
+        if(pos == leftCount + 1) {
+            return k->key;
+        }
+
+        else if(pos <= leftCount) {
+            return selectRec(pos, k->left);
+        }
+
+        else {
+            return selectRec(pos - leftCount - 1, k->right);
+        }
+    }
+
     void transplant(Node* u, Node* v) {
         if (!u->parent) {
             root = v;
@@ -288,235 +334,234 @@ class RBTree {
     }
     
     public:
-        RBTree() {
-            root = nullptr;
-            sizeNum = 0;
-            leftNum = 0;
-            rightNum = 0;
+    RBTree() {
+        root = nullptr;
+        sizeNum = 0;
+        leftNum = 0;
+        rightNum = 0;
+    }
+
+    RBTree(keytype k[], valuetype V[], int s) {
+        for(int i = 0; i < s; i++) {
+            insert(k[i], V[i]);
+        }
+    }
+
+    ~RBTree() {
+
+    }
+
+    valuetype *search(keytype k) {
+
+    }
+
+    void insert(keytype k, valuetype v) {
+        Node *node = new Node;
+        node->key = k;
+        node->value = v;
+        node->left = nullptr;
+        node->right = nullptr;
+        node->parent = nullptr;
+        node->is_red = true;
+
+        if(!root) {
+            root = node;
+            node->is_red = false;
+            sizeNum++;
+            return;
         }
 
-        RBTree(keytype k[], valuetype V[], int s) {
-            for(int i = 0; i < s; i++) {
-                insert(k[i], V[i]);
-            }
-        }
+        Node *curr = root;
+        Node *parent = nullptr;
 
-        ~RBTree() {
+        while(curr != nullptr) {
+            parent = curr;
 
-        }
-
-        valuetype *search(keytype k) {
-
-        }
-
-        void insert(keytype k, valuetype v) {
-            Node *node = new Node;
-            node->key = k;
-            node->value = v;
-            node->left = nullptr;
-            node->right = nullptr;
-            node->parent = nullptr;
-            node->is_red = true;
-
-            if(!root) {
-                root = node;
-                node->is_red = false;
-                sizeNum++;
-                return;
-            }
-
-            Node *curr = root;
-            Node *parent = nullptr;
-
-            while(curr != nullptr) {
-                parent = curr;
-
-                if(k < curr->key) {
-                    curr = curr->left;
-                }
-
-                else if(k > curr->key) {
-                    curr = curr->right;
-                }
-
-                else {
-                    curr->value = v;
-                    return;
-                }
+            if(k < curr->key) {
+                curr = curr->left;
             }
 
-            node->parent = parent;
-
-            if(k < parent->key) {
-                parent->left = node;
+            else if(k > curr->key) {
+                curr = curr->right;
             }
 
             else {
-                parent->right = node;
+                curr->value = v;
+                return;
             }
-
-            fixViolation(root, node);
-            leftNum = countNodes(root->left);
-            rightNum = countNodes(root->right);
-            sizeNum++;
         }
 
-        int remove(keytype k) {
-    Node* node = findNode(root, k);
-    if (node == nullptr) {
+        node->parent = parent;
+
+        if(k < parent->key) {
+            parent->left = node;
+        }
+
+        else {
+            parent->right = node;
+        }
+
+        fixViolation(root, node);
+        leftNum = countNodes(root->left);
+        rightNum = countNodes(root->right);
+        sizeNum++;
+    }
+
+    int remove(keytype k) {
         return 0;
     }
 
-    // Perform standard BST delete
-    Node* parent = node->parent;
-    if (node->left == nullptr) {
-        transplant(node, node->right);
-    } else if (node->right == nullptr) {
-        transplant(node, node->left);
-    } else {
-        Node* successor = findMinimum(node->right);
-        if (successor->parent != node) {
-            transplant(successor, successor->right);
-            successor->right = node->right;
-            successor->right->parent = successor;
-        }
-        transplant(node, successor);
-        successor->left = node->left;
-        successor->left->parent = successor;
-    }
-    delete node;
 
-    // Fix any violations of the Red-Black tree properties
-    if (parent == nullptr) {
-        if (root != nullptr) {
-            root->is_red = false;
+
+   void rankRec(Node* curr, int nums[], int i) {
+        if (curr == nullptr) {
+            return;
         }
-        return 1;
-    } else if (!node->is_red) {
-        fixDoubleBlack(root, node);
+ 
+        /* first recur on left child */
+        rankRec(curr->left, nums, i);
+
+        nums[i] = curr->key;
+        i++;
+    
+        /* now recur on right child */
+        rankRec(curr->right, nums, i);
+
+        return;
     }
 
-    return 1;
-}
+    int rank(keytype k) {
+        if(k < root->key) {
+            int nums[leftNum];
+            rankRec(root->left, nums, 0);
 
+            for(int i = 0; i < leftNum; i++) {
+                if(nums[i] == k) {
+                    return i + 1;
+                }
+            }
 
-
-        int rank(keytype k) {
-            return rankRec(root, k, leftNum, rightNum);
+            return 0;
         }
 
-        int rankRec(Node* curr, keytype k, int leftNum, int rightNum) {
-            if(curr == nullptr) {
+        else if(k > root->key) {
+            int nums[rightNum];
+            rankRec(root->right, nums, 0);
+
+            for(int i = 0; i < rightNum; i++) {
+                if(nums[i] == k) {
+                    // std::cout << i << std::endl;
+                    return i + leftNum + 1;
+                }
+            }
+
+            return 0;
+        }
+
+        else if(k == root->key){
+            return leftNum + 1;
+        }
+
+        return 0;
+    }
+
+
+    keytype select(int pos) {
+        if(pos > sizeNum || pos < 1) {
+            return 0;
+        }
+
+        else {
+            return selectRec(pos, root);
+        }
+
+        return 0;
+    }
+    
+    keytype *successor(keytype k) {
+        Node* temp = root;
+
+        while(1) {
+            if(temp == nullptr) {
                 return 0;
             }
 
-            if(k == curr->key) {
-                return leftNum + 1 + count(curr->left);
-            }
-
-            else if(k < root->key) {
-                return rankRec(curr->left, k, leftNum, leftNum + rightNum);
+            if(temp->key == k) {
+                if(temp->right != nullptr) {
+                    temp = temp->right;
+                    return temp->key;
+                }
             }
 
             else {
-                return leftNum + 1 + count(root->left) + rankRec(curr->right, k, leftNum + count(curr->left) + 1, rightNum);
-            }
-        }
-
-        int count(Node* curr) {
-            if(curr == nullptr) {
-                return 0;
-            }
-
-            return 1 + count(curr->left) + count(curr->right);
-        }
-
-        keytype select(int pos) {
-
-        }
-        
-        keytype *successor(keytype k) {
-            Node* temp = root;
-
-            while(1) {
-                if(temp == nullptr) {
-                    return 0;
-                }
-
-                if(temp->key == k) {
-                    if(temp->right != nullptr) {
-                        temp = temp->right;
-                        return temp->key;
-                    }
+                if(k < temp->key) {
+                    temp = temp->left;
                 }
 
                 else {
-                    if(k < temp->key) {
-                        temp = temp->left;
-                    }
-
-                    else {
-                        temp = temp->right;
-                    }
+                    temp = temp->right;
                 }
             }
         }
+    }
 
-        keytype *predecessor(keytype k) {
-            Node* pred = nullptr;
-            Node* curr = root;
+    keytype *predecessor(keytype k) {
+        Node* pred = nullptr;
+        Node* curr = root;
 
-            while(curr != nullptr) {
-                if(root->key >= k) {
-                    curr = curr->left;
-                }
-
-                else {
-                    pred = curr;
-                    curr = curr->right;
-                }
+        while(curr != nullptr) {
+            if(root->key >= k) {
+                curr = curr->left;
             }
 
-            return pred->key;
+            else {
+                pred = curr;
+                curr = curr->right;
+            }
         }
 
-        int size() {
-            return sizeNum;
-        }
+        return pred->key;
+    }
 
-        void preorder() {
+    int size() {
+        return sizeNum;
+    }
 
-        }
+    void preorder() {
+        preorderRec(root);
+        std::cout << std::endl;
+    }
 
-        void inorder() {
-            inorderRec(root);
-            std::cout << std::endl;
-        }
+    void inorder() {
+        inorderRec(root);
+        std::cout << std::endl;
+    }
 
-        void postorder() {
+    void postorder() {
+        postorderRec(root);
+        std::cout << std::endl;
+    }
 
-        }
+    void printBalance() {
+        std::cout << "LEFT: " << leftNum << std::endl;
+        std::cout << "RIGHT: " << rightNum << std::endl;
+    }
 
-        void printBalance() {
-            std::cout << "LEFT: " << leftNum << std::endl;
-            std::cout << "RIGHT: " << rightNum << std::endl;
-        }
+    void help() {
+        std::cout << "FUNCTIONALITY:" << std::endl;
+        std::cout << "\t" << "search(keytype k)" << std::endl;
+        std::cout << "\t" << "insert(keytype k, valuetype v)" << std::endl;
+        std::cout << "\t" << "remove(keytype k)" << std::endl;
+        std::cout << "\t" << "rank(keytype k)" << std::endl;
+        std::cout << "\t" << "select(int pos)" << std::endl;
+        std::cout << "\t" << "successor(keytype k)" << std::endl;
+        std::cout << "\t" << "predecessor(keytype k)" << std::endl;
+        std::cout << "\t" << "size()" << std::endl;
+        std::cout << "\t" << "preorder()" << std::endl;
+        std::cout << "\t" << "inorder()" << std::endl;
+        std::cout << "\t" << "postorder()" << std::endl;
+        std::cout << "\t" << "printBalance()" << std::endl;
+        std::cout << "---------------------------------------" << std::endl;
 
-        void help() {
-            std::cout << "FUNCTIONALITY:" << std::endl;
-            std::cout << "\t" << "search(keytype k)" << std::endl;
-            std::cout << "\t" << "insert(keytype k, valuetype v)" << std::endl;
-            std::cout << "\t" << "remove(keytype k)" << std::endl;
-            std::cout << "\t" << "rank(keytype k)" << std::endl;
-            std::cout << "\t" << "select(int pos)" << std::endl;
-            std::cout << "\t" << "successor(keytype k)" << std::endl;
-            std::cout << "\t" << "predecessor(keytype k)" << std::endl;
-            std::cout << "\t" << "size()" << std::endl;
-            std::cout << "\t" << "preorder()" << std::endl;
-            std::cout << "\t" << "inorder()" << std::endl;
-            std::cout << "\t" << "postorder()" << std::endl;
-            std::cout << "\t" << "printBalance()" << std::endl;
-            std::cout << "---------------------------------------" << std::endl;
-
-        }
+    }
 };

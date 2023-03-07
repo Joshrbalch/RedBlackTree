@@ -16,8 +16,12 @@ int main() {
     // tree.insert(5, 5);
 
     tree.inorder();
+    tree.preorder();
+    tree.postorder();
 
-    tree.remove(2);
+    for(int i = 0; i < 5; i++) {
+        cout << i << ": " << tree.rank(i) << endl;
+    }
 
     tree.printBalance();
 
