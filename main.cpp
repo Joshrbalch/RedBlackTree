@@ -15,10 +15,11 @@ int main() {
     // tree.insert(4, 4);
     // tree.insert(5, 5);
 
-    // cout << tree.rank(1) << tree.rank(10) << tree.rank(15) << endl;
-    tree.printBalance();
-    
     tree.inorder();
+
+    cout << tree.rank(0) << endl;
+
+    tree.printBalance();
 
     return 0;
 }
