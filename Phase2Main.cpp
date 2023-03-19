@@ -6,7 +6,7 @@ int main(){
 	string K[10] = {"A","B","C","D","E","F","G","H","I","K"};
 	int V[10] = {10,9,8,7,6,5,4,3,2,1};
 	
-	RBTree<string,int> T1(K,V,10) T2;
+	RBTree<string,int> T1(K,V,10), T2;
 	
 	for(int i=0; i<10; i++) T2.insert(K[i],V[i]);
 	// T1 and T2 should be different trees

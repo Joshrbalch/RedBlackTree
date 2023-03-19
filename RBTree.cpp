@@ -484,7 +484,7 @@ class RBTree {
 
 
 
-   void rankRec(Node* curr, int nums[], int i) {
+   void rankRec(Node* curr, keytype nums[], int i) {
         if (curr == nullptr) {
             return;
         }
@@ -503,7 +503,7 @@ class RBTree {
 
     int rank(keytype k) {
         if(k < root->key) {
-            int nums[leftNum];
+            keytype nums[leftNum];
             rankRec(root->left, nums, 0);
 
             for(int i = 0; i < leftNum; i++) {
@@ -516,7 +516,7 @@ class RBTree {
         }
 
         else if(k > root->key) {
-            int nums[rightNum];
+            keytype nums[rightNum];
             rankRec(root->right, nums, 0);
 
             for(int i = 0; i < rightNum; i++) {
@@ -551,6 +551,7 @@ class RBTree {
     
     keytype *successor(keytype k) {
         Node* temp = root;
+        keytype* out;
 
         while(1) {
             if(temp == nullptr) {
@@ -560,7 +561,8 @@ class RBTree {
             if(temp->key == k) {
                 if(temp->right != nullptr) {
                     temp = temp->right;
-                    return temp->key;
+                    out = &temp->key;
+                    return out;
                 }
             }
 
@@ -579,6 +581,7 @@ class RBTree {
     keytype *predecessor(keytype k) {
         Node* pred = nullptr;
         Node* curr = root;
+        keytype* out;
 
         while(curr != nullptr) {
             if(root->key >= k) {
@@ -590,8 +593,8 @@ class RBTree {
                 curr = curr->right;
             }
         }
-
-        return pred->key;
+        out = &pred->key;
+        return out;
     }
 
     int size() {
