@@ -1,12 +1,13 @@
 #include <iostream>
-#include "redBlack.cpp"
+#include "RBTree.cpp"
 
 using namespace std;
 
 int main() {
     RBTree<int, int> tree;
+    int TREE_SIZE = 1000;
 
-    for(int i = 0; i < 5; i++) {
+    for(int i = 0; i < TREE_SIZE; i++) {
         tree.insert(i, i);
     }
     // tree.insert(1, 1);
@@ -19,11 +20,19 @@ int main() {
     tree.preorder();
     tree.postorder();
 
-    for(int i = 0; i < 5; i++) {
-        cout << i << ": " << tree.rank(i) << endl;
-    }
+    // for(int i = 0; i < 10; i++) {
+    //     cout << i << ": " << tree.rank(i) << endl;
+    // }
 
     tree.printBalance();
+
+    for(int i = 0; i < TREE_SIZE; i++) {
+        tree.remove(i);
+    }
+
+    tree.inorder();
+    tree.printBalance();
+
 
     return 0;
 }

@@ -16,6 +16,20 @@ class RBTree {
         bool is_red;
     };
 
+    valuetype *searchRec(Node* root, const keytype& key) {
+        if(root == nullptr || root->key == key) {
+            return (root == nullptr) ? nullptr : &root->value;
+        }
+
+        else if(key < root->key) {
+            return searchRec(root->left, key);
+        }
+
+        else {
+            return searchRec(root->right, key);
+        }
+    }
+
     void preorderRec(Node* curr) {
         if (curr == nullptr) {
             return;
@@ -351,8 +365,22 @@ class RBTree {
 
     }
 
-    valuetype *search(keytype k) {
+    Node* searchNode(Node* root, const keytype& k) {
+        if (root == nullptr || root->key == k) {
+            return root;
+        }
 
+        else if(k < root->key) {
+            return searchNode(root->left, k);
+        }
+
+        else {
+            return searchNode(root->right, k);
+        }
+    }
+
+    valuetype *search(keytype k) {
+        return searchRec(root, k);
     }
 
     void insert(keytype k, valuetype v) {
@@ -408,6 +436,49 @@ class RBTree {
     }
 
     int remove(keytype k) {
+        Node *curr = newNode();
+        curr = searchNode(root, k);
+
+        if(curr == nullptr) {
+            return 0;
+        }
+
+        if(curr->left == nullptr) {
+            transplant(curr, curr->right);
+            sizeNum--;
+            leftNum = countNodes(root->left);
+            rightNum = countNodes(root->right);
+            return 1;
+        }
+
+        else if(curr->right == nullptr) {
+            transplant(curr, curr->left);
+            sizeNum--;
+            leftNum = countNodes(root->left);
+            rightNum = countNodes(root->right);
+            return 1;
+        }
+
+        else {
+            Node *y = newNode();
+            y = findMinimum(curr->right);
+
+            if(y->parent != curr) {
+                transplant(y, y->right);
+                y->right = curr->right;
+                y->right->parent = y;
+            }
+
+            transplant(curr, y);
+            y->left = curr->left;
+            y->left->parent = y;
+            y->is_red = curr->is_red;
+            leftNum = countNodes(root->left);
+            rightNum = countNodes(root->right);
+            sizeNum--;
+            return 1;
+        }
+
         return 0;
     }
 
