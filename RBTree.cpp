@@ -212,111 +212,218 @@ class RBTree {
         inorderRec(curr->right);
     }
 
-    void rotateLeft(Node* &curr, Node* &node) { 
-        Node* pivot = node->right;
-        node->right = pivot->left;
+    void rotateLeft(Node* curr) {
+        std::cout << "rotate left" << std::endl;
+        Node* y = curr->right;
+        curr->right = y->left;
 
-        if(pivot->left) {
-            pivot->left->parent = node;
+        if(y->left != nullptr) {
+            y->left->parent = curr;
         }
 
-        pivot->parent = node->parent;
+        y->parent = curr->parent;
 
-        if(!node->parent) {
-            curr = pivot;
+        if(curr->parent == nullptr) {
+            root = y;
         }
 
-        else if(node == node->parent->left) {
-            node->parent->left = pivot;
+        else if(curr == curr->parent->left) {
+            curr->parent->left = y;
         }
 
         else {
-            node->parent->right = pivot;
+            curr->parent->right = y;
         }
 
-        pivot->left = node;
-        node->parent = pivot;
+        y->left = curr;
+        curr->parent = y;
+        // Node* pivot = node->right;
+        // node->right = pivot->left;
+
+        // if(pivot->left) {
+        //     pivot->left->parent = node;
+        // }
+
+        // pivot->parent = node->parent;
+
+        // if(!node->parent) {
+        //     curr = pivot;
+        // }
+
+        // else if(node == node->parent->left) {
+        //     node->parent->left = pivot;
+        // }
+
+        // else {
+        //     node->parent->right = pivot;
+        // }
+
+        // pivot->left = node;
+        // node->parent = pivot;
     }
 
-    void rotateRight(Node* &curr, Node* &node) {
-        Node* pivot = node->left;
-        node->left = pivot->right;
+    void rotateRight(Node* &curr) {
+        Node* y = curr->left;
+        curr->left = y->right;
 
-        if(pivot->right) {
-            pivot->right->parent = node;
+        if(y->right != nullptr) {
+            y->right->parent = curr;
         }
 
-        pivot->parent = node->parent;
+        y->parent = curr->parent;
 
-        if(!node->parent) {
-            curr = pivot;
+        if(curr->parent == nullptr) {
+            root = y;
         }
 
-        else if(node == node->parent->left) {
-            node->parent->left = pivot;
+        else if(curr == curr->parent->left) {
+            curr->parent->left = y;
         }
 
         else {
-            node->parent->right = pivot;
+            curr->parent->right = y;
         }
 
-        pivot->right = node;
-        node->parent = pivot;
+        y->right = curr;
+        curr->parent = y;
+        // Node* pivot = node->left;
+        // node->left = pivot->right;
+
+        // if(pivot->right) {
+        //     pivot->right->parent = node;
+        // }
+
+        // pivot->parent = node->parent;
+
+        // if(!node->parent) {
+        //     curr = pivot;
+        // }
+
+        // else if(node == node->parent->left) {
+        //     node->parent->left = pivot;
+        // }
+
+        // else {
+        //     node->parent->right = pivot;
+        // }
+
+        // pivot->right = node;
+        // node->parent = pivot;
     }
 
-    void fixViolation(Node* &curr, Node* &node) {
-        if(node == curr) {
-            node->is_red = false;
+    void fixViolation(Node* curr) {
+        if(sizeNum == 1) {
             return;
         }
+        
 
-        if(!node->parent->is_red) {
-            return;
+        if(curr->parent->is_red == true) {
+            
+            while(curr->parent->is_red == true) {
+                
+                if(curr->parent == curr->parent->parent->left) {
+                    
+                    Node* y = curr->parent->parent->right;
+
+                    if(y->is_red == true) {
+                        curr->parent->is_red = false;
+                        y->is_red = false;
+                        curr->parent->parent->is_red = true;
+                        curr = curr->parent->parent;
+                    }
+
+                    else if(curr = curr->parent->right) {
+                        curr = curr->parent;
+                        rotateLeft(curr);
+                    }
+
+                    curr->parent->is_red = false;
+                    curr->parent->parent->is_red = true;
+                    rotateRight(curr);
+                }
+
+                else {
+                    
+                    Node* y = curr->parent->parent->left;
+                    
+
+                    if(y->is_red == true) {
+                        
+                        curr->parent->is_red = false;
+                        y->is_red = false;
+                        curr->parent->parent->is_red = true;
+                        curr = curr->parent->parent;
+                    }
+
+                    else if(curr = curr->parent->left) {
+                        
+                        curr = curr->parent;
+                        rotateRight(curr);
+                    }
+
+                    curr->parent->is_red = false;
+                    curr->parent->parent->is_red = true;
+                    rotateLeft(curr);
+                }
+            }
+            root->is_red = false;
         }
 
-        Node *parent = node->parent;
-        Node* grandparent = parent->parent;
-        Node* uncle = nullptr;
 
-        if(parent == grandparent->left) {
-            uncle = grandparent->right;
-            if(uncle && uncle->is_red) {
-                parent->is_red = false;
-                uncle->is_red = false;
-                grandparent->is_red = true;
-                fixViolation(curr, grandparent);
-                return;
-            }
 
-            if(node == parent->right) {
-                rotateLeft(curr, parent);
-                std::swap(node, parent);
-            }
 
-            parent->is_red = false;
-            grandparent->is_red = true;
-            rotateRight(curr, grandparent);
-        }
+        // if(node == curr) {
+        //     node->is_red = false;
+        //     return;
+        // }
 
-        else {
-            uncle = grandparent->left;
-            if(uncle && uncle->is_red) {
-                parent->is_red = false;
-                uncle->is_red = false;
-                grandparent->is_red = true;
-                fixViolation(curr, grandparent);
-                return;
-            }
+        // if(!node->parent->is_red) {
+        //     return;
+        // }
 
-            if(node == parent->left) {
-                rotateRight(curr, parent);
-                std::swap(node, parent);
-            }
+        // Node *parent = node->parent;
+        // Node* grandparent = parent->parent;
+        // Node* uncle = nullptr;
 
-            parent->is_red = false;
-            grandparent->is_red = true;
-            rotateLeft(curr, grandparent);
-        }
+        // if(parent == grandparent->left) {
+        //     uncle = grandparent->right;
+        //     if(uncle && uncle->is_red) {
+        //         parent->is_red = false;
+        //         uncle->is_red = false;
+        //         grandparent->is_red = true;
+        //         fixViolation(curr, grandparent);
+        //         return;
+        //     }
+
+        //     if(node == parent->right) {
+        //         rotateLeft(curr, parent);
+        //         std::swap(node, parent);
+        //     }
+
+        //     parent->is_red = false;
+        //     grandparent->is_red = true;
+        //     rotateRight(curr, grandparent);
+        // }
+
+        // else {
+        //     uncle = grandparent->left;
+        //     if(uncle && uncle->is_red) {
+        //         parent->is_red = false;
+        //         uncle->is_red = false;
+        //         grandparent->is_red = true;
+        //         fixViolation(curr, grandparent);
+        //         return;
+        //     }
+
+        //     if(node == parent->left) {
+        //         rotateRight(curr, parent);
+        //         std::swap(node, parent);
+        //     }
+
+        //     parent->is_red = false;
+        //     grandparent->is_red = true;
+        //     rotateLeft(curr, grandparent);
+        // }
     }
     
 
@@ -330,11 +437,13 @@ class RBTree {
     int rightNum;
 
     Node* newNode() {
-        Node* n = new Node;
-        n->left = nullptr;
-        n->right = nullptr;
+        Node* node = new Node;
+        node->left = nullptr;
+        node->right = nullptr;
+        node->parent = nullptr;
+        node->is_red = true;
 
-        return n;
+        return node;
     }
 
     Node* newNode(keytype k, valuetype v) {
@@ -356,8 +465,11 @@ class RBTree {
     }
 
     RBTree(keytype k[], valuetype V[], int s) {
+        root = nullptr;
+        sizeNum = 0;
+        leftNum = 0;
+        rightNum = 0;
         for(int i = 0; i < s; i++) {
-            std::cout << "Inserting " << k[i] << " " << V[i] << std::endl;
             insert(k[i], V[i]);
         }
     }
@@ -386,55 +498,107 @@ class RBTree {
 
     void insert(keytype k, valuetype v) {
         Node *node = newNode(k, v);
-        
-
-        node->left = nullptr;
-        node->right = nullptr;
-        node->parent = nullptr;
-        node->is_red = true;
-
-        if(sizeNum == 0 || root == nullptr) {
+        if(sizeNum == 0) {
             root = node;
-            node->is_red = false;
+            root->is_red = false;
             sizeNum++;
             return;
         }
 
-        Node *curr = root;
-        Node *parent = nullptr;
+        // if(sizeNum == 0 || root == nullptr) {
+        //     std::cout << "CHECK" << std::endl;
+        //     root = node;
+        //     node->is_red = false;
+        //     sizeNum++;
+        //     return;
+        // }
 
-        while(curr != nullptr) {
-            parent = curr;
+        Node* y = nullptr;
+        Node* x = root;
 
-            if(k < curr->key) {
-                curr = curr->left;
-            }
-
-            else if(k > curr->key) {
-                curr = curr->right;
+        while(x != nullptr) {
+            y = x;
+            if(node->key < x->key) {
+                x = x->left;
             }
 
             else {
-                curr->value = v;
-                return;
+                x = x->right;
             }
         }
 
-        node->parent = parent;
+        node->parent = y;
 
-        if(k < parent->key) {
-            parent->left = node;
+        if(y == nullptr) {
+            root = node;
+            root->is_red = false;
+        }
+
+        else if(node->key < y->key) {
+            y->left = node;
         }
 
         else {
-            parent->right = node;
+            y->right = node;
         }
-        
 
-        fixViolation(root, node);
-        leftNum = countNodes(root->left);
-        rightNum = countNodes(root->right);
         sizeNum++;
+
+        node->left = nullptr;
+        node->right = nullptr;
+        node->is_red = true;
+
+        fixViolation(node);
+
+        // if(sizeNum == 0 || root == nullptr) {
+        //     root = node;
+        //     node->is_red = false;
+        //     sizeNum++;
+        //     return;
+        // }
+
+        // Node *curr = root;
+        // Node *parent = nullptr;
+
+        // while(curr != nullptr) {
+        //     parent = curr;
+
+        //     if(k < curr->key) {
+        //         curr = curr->left;
+        //     }
+
+        //     else if(k > curr->key) {
+        //         curr = curr->right;
+        //     }
+
+        //     else {
+        //         curr->value = v;
+        //         return;
+        //     }
+        // }
+
+        // node->parent = parent;
+
+        // if(k < parent->key) {
+        //     parent->left = node;
+        // }
+
+        // else {
+        //     parent->right = node;
+        // }
+
+        // if(k < root->key) {
+        //     leftNum++;
+        // }
+
+        // else {
+        //     rightNum++;
+        // }
+        
+        // fixViolation(root, node);
+        // leftNum = countNodes(root->left);
+        // rightNum = countNodes(root->right);
+        // sizeNum++;
     }
 
     int remove(keytype k) {
@@ -550,6 +714,21 @@ class RBTree {
 
         return 0;
     }
+
+    int countRed(Node* curr) {
+        if(curr == nullptr) {
+            return 0;
+        }
+
+        int count{};
+
+        if(curr->is_red) {
+            count = 1;
+        }
+
+        count += countRed(curr->left) + countRed(curr->right);
+        return count;
+    }
     
     keytype *successor(keytype k) {
         Node* temp = root;
@@ -565,6 +744,11 @@ class RBTree {
                     temp = temp->right;
                     out = &temp->key;
                     return out;
+                }
+
+                else {
+                    std::cout << "No successor" << std::endl;
+                    return nullptr;
                 }
             }
 
