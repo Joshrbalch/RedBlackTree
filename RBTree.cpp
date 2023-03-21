@@ -358,7 +358,7 @@ class RBTree {
                         curr = curr->parent;
                         rotateRight(curr);
                     }
-                    
+                    //TRACKED PROBLEM TO HERE
                     curr->parent->is_red = false;
                     curr->parent->parent->is_red = true;
                     rotateLeft(curr);
