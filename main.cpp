@@ -5,7 +5,12 @@ using namespace std;
 
 int main() {
     RBTree<int, int> tree;
-    int TREE_SIZE = 1000;
+    int TREE_SIZE = 10;
+
+    string K[10] = {"A","B","C","D","E","F","G","H","I","K"};
+	int V[10] = {10,9,8,7,6,5,4,3,2,1};
+	
+	RBTree<string,int> T1(K,V,10), T2;
 
     for(int i = 0; i < TREE_SIZE; i++) {
         tree.insert(i, i);

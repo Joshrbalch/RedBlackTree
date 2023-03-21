@@ -357,6 +357,7 @@ class RBTree {
 
     RBTree(keytype k[], valuetype V[], int s) {
         for(int i = 0; i < s; i++) {
+            std::cout << "Inserting " << k[i] << " " << V[i] << std::endl;
             insert(k[i], V[i]);
         }
     }
@@ -384,15 +385,15 @@ class RBTree {
     }
 
     void insert(keytype k, valuetype v) {
-        Node *node = new Node;
-        node->key = k;
-        node->value = v;
+        Node *node = newNode(k, v);
+        
+
         node->left = nullptr;
         node->right = nullptr;
         node->parent = nullptr;
         node->is_red = true;
 
-        if(!root) {
+        if(sizeNum == 0 || root == nullptr) {
             root = node;
             node->is_red = false;
             sizeNum++;
@@ -428,6 +429,7 @@ class RBTree {
         else {
             parent->right = node;
         }
+        
 
         fixViolation(root, node);
         leftNum = countNodes(root->left);
