@@ -345,7 +345,6 @@ class RBTree {
                 else {
                     
                     Node* y = curr->parent->parent->left;
-                    
 
                     if(y->is_red == true) {
                         
@@ -355,12 +354,11 @@ class RBTree {
                         curr = curr->parent->parent;
                     }
 
-                    else if(curr = curr->parent->left) {
-                        
+                    else if(curr == curr->parent->left) {
                         curr = curr->parent;
                         rotateRight(curr);
                     }
-
+                    
                     curr->parent->is_red = false;
                     curr->parent->parent->is_red = true;
                     rotateLeft(curr);
