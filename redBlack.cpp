@@ -305,32 +305,33 @@ class RBTree {
         }
     }
     
-
-
-
-    
     public:
+    
     int sizeNum;
     Node* root;
     int leftNum;
     int rightNum;
 
     Node* newNode() {
-        Node* n = new Node;
-        n->left = nullptr;
-        n->right = nullptr;
+        Node *node = new Node;
+        node->left = nullptr;
+        node->right = nullptr;
+        node->parent = nullptr;
+        node->is_red = true;
 
-        return n;
+        return node;
     }
 
     Node* newNode(keytype k, valuetype v) {
-        Node* n = new Node;
-        n->value = v;
-        n->key = k;
-        n->left = nullptr;
-        n->right = nullptr;
+        Node *node = new Node;
+        node->key = k;
+        node->value = v;
+        node->left = nullptr;
+        node->right = nullptr;
+        node->parent = nullptr;
+        node->is_red = true;
 
-        return n;
+        return node;
     }
     
     public:
@@ -356,13 +357,7 @@ class RBTree {
     }
 
     void insert(keytype k, valuetype v) {
-        Node *node = new Node;
-        node->key = k;
-        node->value = v;
-        node->left = nullptr;
-        node->right = nullptr;
-        node->parent = nullptr;
-        node->is_red = true;
+        Node *node = newNode(k, v);
 
         if(!root) {
             root = node;
