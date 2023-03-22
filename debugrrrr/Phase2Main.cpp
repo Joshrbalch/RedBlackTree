@@ -1,6 +1,6 @@
 #include <iostream>
 using namespace std;
-#include "desperate.cpp"
+#include "C:\Users\12564\source\repos\Project1\Project1\gang.cpp"
 
 int main(){
 	string K[10] = {"A","B","C","D","E","F","G","H","I","K"};
@@ -56,11 +56,11 @@ int main(){
 	cout <<T2.rank("G") << endl;
 	//Should output 6
 	
-	// cout <<(T1.successor("C"))<<endl;
-	// //Should output D
+	//cout <<(T1.successor("C"))<<endl;
+	//Should output D
 	
-	// cout <<(T1.predecessor("C"))<<endl;
-	// //Should output B		
+	//cout <<(T1.predecessor("C"))<<endl;
+	//Should output B		
 	
 	K[0] = "J";
 	RBTree<string,string> T3, T4(K,K,10);

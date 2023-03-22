@@ -17,18 +17,49 @@ class RBTree {
         bool is_red;
     };
 
-    valuetype *searchRec(Node* root, const keytype& key) {
-        if(root == nullptr || root->key == key) {
-            return (root == nullptr) ? nullptr : &root->value;
+    Node* moveRedRight(Node* curr) {
+        colorFlip(curr);
+        if (is_red(curr->left->left)) {
+            curr = rotateRight(curr);
+            colorFlip(curr);
+        }
+        return curr;
+    }
+
+
+    Node* moveRedLeft(Node* curr) {
+        colorFlip(curr);
+        if (is_red(curr->right->left)) {
+            curr->right = rotateRight(curr->right);
+            curr = rotateLeft(curr);
+            colorFlip(curr);
+        }
+        return curr;
+    }
+
+    void colorFlip(Node* curr) {
+        curr->is_red = !curr->is_red;
+        curr->left->is_red = !curr->left->is_red;
+        curr->right->is_red = !curr->right->is_red;
+    }
+
+    valuetype findVal(Node* curr, keytype key) {
+        if (curr == nullptr) {
+            return nullptr;
         }
 
-        else if(key < root->key) {
-            return searchRec(root->left, key);
+        else if (curr->key == key) {
+            return &(curr->value);
         }
 
-        else {
-            return searchRec(root->right, key);
-        }
+        else if(key > curr->key) 
+            return findVal(curr->right, key); {
+		}
+		else 
+            return findVal(curr->left, key); {
+		}
+
+        return nullptr;
     }
 
     void preorderRec(Node* curr) {
@@ -104,8 +135,9 @@ class RBTree {
         else {
 			u->parent->right = v;
 		}
-
-		v->parent = u->parent;
+        if (v != nullptr) {
+            v->parent = u->parent;
+        }
     }
 
     Node* findMinimum(Node* node) {
@@ -210,7 +242,7 @@ class RBTree {
     void fixDelete(Node* x) {
         Node* s;
 
-        while(x != root && x->is_red == 0) {
+        while(x != nullptr && x != root && x->is_red == 0) {
             if(x == x->parent->left) {
                 s = x->parent->right;
 
@@ -272,7 +304,7 @@ class RBTree {
                 }
             }
         }
-        x->is_red = false;
+        root->is_red = false;
     }
 
     void fixViolation(Node* k){
@@ -387,26 +419,12 @@ class RBTree {
 
     }
 
-    Node* searchNode(Node* root, const keytype& k) {
-        if (root == nullptr || root->key == k) {
-            return root;
-        }
-
-        else if(k < root->key) {
-            return searchNode(root->left, k);
-        }
-
-        else {
-            return searchNode(root->right, k);
-        }
-    }
-
     valuetype *search(keytype k) {
-        return searchRec(root, k);
+        return findVal(root, k);
     }
 
     void insert(keytype k, valuetype v) {
-        Node *node = new Node;
+        Node* node = new Node;
         node->key = k;
         node->value = v;
         node->parent = nullptr;
@@ -417,9 +435,9 @@ class RBTree {
         Node* y = nullptr;
         Node* x = this->root;
 
-        while(x != TNULL) {
+        while (x != TNULL) {
             y = x;
-            if(node->key < x->key) {
+            if (node->key < x->key) {
                 x = x->left;
             }
 
@@ -429,10 +447,9 @@ class RBTree {
         }
 
         sizeNum = sizeNum + 1;
-        std::cout << "sizeNum: " << sizeNum << std::endl;
 
-        if(root != TNULL) {
-            if(k < root->key) {
+        if (root != TNULL) {
+            if (k < root->key) {
                 leftNum++;
             }
 
@@ -443,11 +460,11 @@ class RBTree {
 
         node->parent = y;
 
-        if(y == nullptr) {
+        if (y == nullptr) {
             root = node;
         }
 
-        else if(node->key < y->key) {
+        else if (node->key < y->key) {
             y->left = node;
         }
 
@@ -455,83 +472,72 @@ class RBTree {
             y->right = node;
         }
 
-        if(node->parent == nullptr) {
+        if (node->parent == nullptr) {
             node->is_red = false;
             return;
         }
 
-        if(node->parent->parent == nullptr) {
+        if (node->parent->parent == nullptr) {
             return;
         }
 
         fixViolation(node);
     }
 
-    int remove(keytype k) {
-        Node* z = TNULL;
-        Node* x; 
-        Node* y;
-        Node* node = root;
-
-        while(node != TNULL) {
-            if(node->key == k) {
-                z = node;
-            }
-
-            if(node->key <= k) {
-                node = node->right;
-            }
-
-            else {
-                node = node->left;
-            }
+    Node* deleteMinimum(Node* curr) {
+        if (curr->left == TNULL) {
+            return TNULL;
         }
 
-        if(z == TNULL) {
-            return 0;
-        }
+        if(curr->left->is_red == 0 && curr->left->left->is_red == 0) 
+            curr = moveRedLeft(curr); {
+		}
 
-        y = z;
+        curr->left = deleteMinimum(curr->left);
+        return fix(curr);
+    }
 
-        bool y_original_color = y->is_red;
-
-        if(z->left == TNULL) {
-            x = z->right;
-            transplant(z, z->right);
-        }
-
-        else if(z->right == TNULL) {
-            x = z->left;
-            transplant(z, z->left);
+    Node* removeNode(Node* curr, keytype key) {
+        if (key < curr->key) {
+            if (curr->left->is_red == 0 && curr->left->left->is_red == 0) {
+                curr = moveRedLeft(curr);
+            }
+            curr->left = removeNode(curr->left, key);
         }
 
         else {
-            y = findMinimum(z->right);
-            y_original_color = y->is_red;
-            x = y->right;
-
-            if(y->parent == z) {
-                x->parent = y;
+            if (curr->left->is_red) {
+                rotateRight(curr);
             }
 
-            else {
-                transplant(y, y->right);
-                y->right = z->right;
-                y->right->parent = y;
+            if (key == curr->key && (curr->right == TNULL)) {
+				return TNULL;
+			}
+
+            if (curr->right->is_red == 0 && curr->right->left->is_red == 0) {
+				curr = moveRedRight(curr);
+			}
+
+            if (key == curr->key) {
+                Node* x = curr->right;
+
+                while (x->left != TNULL) {
+					x = x->left;
+				}
+
+                curr->key = x->key;
+                curr->value = x->value;
+                curr->right = 
             }
+        }
+    }
 
-            transplant(z, y);
-            y->left = z->left;
-            y->left->parent = y;
-            y->is_red = z->is_red;
+    int remove(keytype k) {
+        if (search(k) == nullptr) {
+            return 0;
         }
 
-        delete z;
-        if(y_original_color == false) {
-            fixDelete(x);
-        }
-
-        return 1;
+        root = removeNode(root, k)
     }
 
 

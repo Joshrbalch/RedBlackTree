@@ -6,7 +6,7 @@ using namespace std;
 
 int main() {
     RBTree<int, int> tree;
-    int TREE_SIZE = 10;
+    int TREE_SIZE = 1001000;
 
     RBTree<int,int> X;
 
@@ -19,8 +19,6 @@ int main() {
 
     std::cout << X.countRed(X.root) << std::endl;
     X.printBalance();
-
-    X.remove(1);
 
     // for(int i = 0; i < TREE_SIZE; i++) {
     //     X.remove(i);
