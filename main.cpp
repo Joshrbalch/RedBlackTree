@@ -9,19 +9,27 @@ using namespace std;
 
 int main() {
     RBTree<int, int> tree;
-    int TREE_SIZE = 100;
+    int TREE_SIZE = 1001000;
 
     RBTree<int,int> X;
 
 
-	for (int i=1;i<=TREE_SIZE;i++) {
+	for (int i = 0; i < TREE_SIZE; i++) {
         X.insert(i,i);
-        cout << "Red Nodes: " << X.countRed(X.root) << endl;
-        X.inorder();
-        
+        // cout << i << ": ";
+        // cout << endl;
+        // X.printBalance();
     }
 
-    X.remove(2);
+    std::cout << X.countRed(X.root) << std::endl;
+    X.printBalance();
+
+    // for(int i = 0; i < TREE_SIZE; i++) {
+    //     X.remove(i);
+    // }
+
+    // X.printBalance();
+    // std::cout << X.countRed(X.root) << std::endl;
 
     return 0;
 }

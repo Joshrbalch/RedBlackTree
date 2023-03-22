@@ -131,7 +131,7 @@ class RBTree {
     int countNodes(Node* root) {
         int num = 1;
 
-        if(root == nullptr) {
+        if(root == TNULL) {
             return 0;
         }
 
@@ -144,6 +144,12 @@ class RBTree {
 
     void rotateLeft(Node* curr) {
         Node* y = curr->right;
+        if(curr == root) {
+            int collateral = countNodes(y->left);
+            leftNum += collateral + 1;
+            rightNum = rightNum - 1 - collateral;
+        }
+
         curr->right = y->left;
         
         if(y->left != TNULL) {
@@ -170,6 +176,11 @@ class RBTree {
 
     void rotateRight(Node* &curr) {
         Node* y = curr->left;
+        if(curr == root) {
+            int collateral = countNodes(y->right);
+            rightNum += collateral + 1;
+            leftNum = leftNum - 1 - collateral;
+        }
         curr->left = y->right;
 
         if(y->right != TNULL) {
@@ -273,7 +284,9 @@ class RBTree {
 					k->parent->is_red = 0;
 					k->parent->parent->is_red = 1;
 					k = k->parent->parent;
-				} else {
+				} 
+                
+                else {
 					if (k == k->parent->left) {
 						// case 3.2.2
 						k = k->parent;
@@ -284,7 +297,10 @@ class RBTree {
 					k->parent->parent->is_red = 1;
 					rotateLeft(k->parent->parent);
 				}
-			} else {
+
+			} 
+            
+            else {
 				u = k->parent->parent->right; // uncle
 
 				if (u->is_red == 1) {
@@ -293,7 +309,9 @@ class RBTree {
 					k->parent->is_red = 0;
 					k->parent->parent->is_red = 1;
 					k = k->parent->parent;	
-				} else {
+				} 
+                
+                else {
 					if (k == k->parent->right) {
 						// mirror case 3.2.2
 						k = k->parent;
@@ -406,6 +424,16 @@ class RBTree {
             }
         }
 
+        if(root != TNULL) {
+            if(k < root->key) {
+                leftNum++;
+            }
+
+            else {
+                rightNum++;
+            }
+        }
+
         node->parent = y;
 
         if(y == nullptr) {
@@ -433,11 +461,12 @@ class RBTree {
     }
 
     int remove(keytype k) {
-        Node* z = nullptr;
-        Node* x, y;
+        Node* z = TNULL;
+        Node* x; 
+        Node* y;
         Node* node = root;
 
-        while(node != nullptr) {
+        while(node != TNULL) {
             if(node->key == k) {
                 z = node;
             }
@@ -451,7 +480,7 @@ class RBTree {
             }
         }
 
-        if(z == nullptr) {
+        if(z == TNULL) {
             return 0;
         }
 
@@ -459,18 +488,18 @@ class RBTree {
 
         bool y_original_color = y->is_red;
 
-        if(z->left == nullptr) {
+        if(z->left == TNULL) {
             x = z->right;
             transplant(z, z->right);
         }
 
-        else if(z->right == nullptr) {
+        else if(z->right == TNULL) {
             x = z->left;
             transplant(z, z->left);
         }
 
         else {
-            y = minimum(z->right);
+            y = findMinimum(z->right);
             y_original_color = y->is_red;
             x = y->right;
 
@@ -494,6 +523,8 @@ class RBTree {
         if(y_original_color == false) {
             fixDelete(x);
         }
+
+        return 1;
     }
 
 
