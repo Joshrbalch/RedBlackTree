@@ -1,6 +1,6 @@
 #include <iostream>
 using namespace std;
-#include "C:\Users\12564\source\repos\Project2\Project2\gang.cpp"
+#include "RBTree.cpp"
 
 int main(){
 	string K[10] = {"A","B","C","D","E","F","G","H","I","K"};

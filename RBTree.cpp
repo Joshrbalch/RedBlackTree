@@ -1,681 +1,534 @@
 #include <iostream>
-#include <random>
+using namespace std;
 
-template <class keytype, class valuetype>
+template<typename keytype, typename valuetype>
+class RBTree
+{
+private:
+	struct RBNode {
+		RBNode* left, *right;
+		keytype key;
+		valuetype val;
+		bool color;
+		int size;
+	};
 
-class RBTree {
-    private:
-    class Node {
-        private:
-        public:
-        keytype key;
-        valuetype value;
-        Node* left;
-        Node* right;
-        Node* parent;
+	RBNode* root;
+	int sizeNum;
+	int leftNum;
+	int rightNum;
 
-        bool is_red;
-    };
-
-    valuetype *searchRec(Node* root, const keytype& key) {
-        if(root == nullptr || root->key == key) {
-            return (root == nullptr) ? nullptr : &root->value;
-        }
-
-        else if(key < root->key) {
-            return searchRec(root->left, key);
-        }
-
-        else {
-            return searchRec(root->right, key);
-        }
-    }
-
-    void preorderRec(Node* curr) {
-        if (curr == TNULL) {
-            return;
-        }
- 
-        /* first print data of node */
-        std::cout << curr->key << " ";
-    
-        /* then recur on left sutree */
-        preorderRec(curr->left);
-    
-        /* now recur on right subtree */
-        preorderRec(curr->right);
-    }
-
-    void inorderRec(Node* curr) {
-        if (curr == TNULL) {
-            return;
-        }
- 
-        /* first recur on left child */
-        inorderRec(curr->left);
-    
-        /* then print the data of node */
-        std::cout << curr->key << " ";
-    
-        /* now recur on right child */
-        inorderRec(curr->right);
-    }
-
-    void postorderRec(Node* curr) {
-        if (curr == TNULL) {
-            return;
-        }
- 
-        /* first recur on left child */
-        postorderRec(curr->left);
-    
-        /* now recur on right child */
-        postorderRec(curr->right);
-
-        /* then print the data of node */
-        std::cout << curr->key << " ";
-    }
-
-    keytype selectRec(int pos, Node* k) {
-        int leftCount = countNodes(k->left);
-        
-        if(pos == leftCount + 1) {
-            return k->key;
-        }
-
-        else if(pos <= leftCount) {
-            return selectRec(pos, k->left);
-        }
-
-        else {
-            return selectRec(pos - leftCount - 1, k->right);
-        }
-    }
-
-    void transplant(Node* u, Node* v) {
-        if (u->parent == nullptr) {
-			root = v;
-		} 
-        
-        else if (u == u->parent->left){
-			u->parent->left = v;
-		} 
-        
-        else {
-			u->parent->right = v;
-		}
-
-		v->parent = u->parent;
-    }
-
-    Node* findMinimum(Node* node) {
-        while (node->left) {
-            node = node->left;
-        }
-
-        return node;
-    }
-
-    Node* findNode(Node* node, const keytype& k) {
-        if (!node) {
-            return nullptr;
-        }
-        if (k < node->key) {
-            return findNode(node->left, k);
-        } else if (k > node->key) {
-            return findNode(node->right, k);
-        } else {
-            return node;
-        }
-    }
-
-    int countNodes(Node* root) {
-        int num = 1;
-
-        if(root == TNULL) {
-            return 0;
-        }
-
-        else {
-            num += countNodes(root->left);
-            num += countNodes(root->right);
-            return num;
-        }
-    }
-
-    void rotateLeft(Node* curr) {
-        Node* y = curr->right;
-        if(curr == root) {
-            int collateral = countNodes(y->left);
-            leftNum += collateral + 1;
-            rightNum = rightNum - 1 - collateral;
-        }
-
-        curr->right = y->left;
-        
-        if(y->left != TNULL) {
-            y->left->parent = curr;
-        }
-
-        y->parent = curr->parent;
-
-        if(curr->parent == nullptr) {
-            this->root = y;
-        }
-
-        else if(curr == curr->parent->left) {
-            curr->parent->left = y;
-        }
-
-        else {
-            curr->parent->right = y;
-        }
-
-        y->left = curr;
-        curr->parent = y;
-    }
-
-    void rotateRight(Node* curr) {
-        Node* y = curr->left;
-        if(curr == root) {
-            int collateral = countNodes(y->right);
-            rightNum += collateral + 1;
-            leftNum = leftNum - 1 - collateral;
-        }
-
-        curr->left = y->right;
-
-        if(y->right != TNULL) {
-            y->right->parent = curr;
-        }
-
-        y->parent = curr->parent;
-
-        if(curr->parent == nullptr) {
-            this->root = y;
-        }
-
-        else if(curr == curr->parent->right) {
-            curr->parent->right = y;
-        }
-
-        else {
-            curr->parent->left = y;
-        }
-
-        y->right = curr;
-        curr->parent = y;
-    }
-
-    void fixDelete(Node* x) {
-        Node* s;
-
-        while(x != root && x->is_red == 0) {
-            if(x == x->parent->left) {
-                s = x->parent->right;
-
-                if(s->is_red) {
-                    s->is_red = false;
-                    x->parent->is_red = true;
-                    rotateLeft(x->parent);
-                    s = x->parent->right;
-                }
-
-                if(s->left->is_red == false && s->right->is_red == false) {
-                    s->is_red = true;
-                    x = x->parent;
-                }
-
-                else {
-                    if(s->right->is_red == false) {
-                        s->left->is_red = false;
-                        s->is_red = true;
-                        rotateRight(s);
-                        s = x->parent->right;
-                    }
-
-                    s->is_red = x->parent->is_red;
-                    x->parent->is_red = false;
-                    s->right->is_red = false;
-                    rotateLeft(x->parent);
-                    x = root;
-                }
-            }
-
-            else {
-                s = x->parent->left;
-                if(s->is_red) {
-                    s->is_red = false;
-                    x->parent->is_red = true;
-                    rotateRight(x->parent);
-                    s = x->parent->left;
-                }
-
-                if(s->right->is_red == 0 && s->right->is_red == 0) {
-                    s->is_red = true;
-                    x = x->parent;
-                }
-
-                else {
-                    if(s->left->is_red == false) {
-                        s->right->is_red = false;
-                        s->is_red = true;
-                        rotateLeft(s);
-                        s = x->parent->left;
-                    }
-
-                    s->is_red = x->parent->is_red;
-                    x->parent->is_red = false;
-                    s->left->is_red = false;
-                    rotateRight(x->parent);
-                    x = root;
-                }
-            }
-        }
-        x->is_red = false;
-    }
-
-    void fixViolation(Node* k){
-		Node* u;
-        
-		while (k->parent->is_red == 1) {
-			if (k->parent == k->parent->parent->right) {
-				u = k->parent->parent->left; // uncle
-				if (u != nullptr && u->is_red == 1) {
-					// case 3.1
-					u->is_red = 0;
-					k->parent->is_red = 0;
-					k->parent->parent->is_red = 1;
-					k = k->parent->parent;
-				} 
-                
-                else {
-					if (k == k->parent->left) {
-						// case 3.2.2
-						k = k->parent;
-						rotateRight(k);
-					}
-					// case 3.2.1
-					k->parent->is_red = 0;
-					k->parent->parent->is_red = 1;
-					rotateLeft(k->parent->parent);
-				}
-
-			} 
-            
-            else {
-				u = k->parent->parent->right; // uncle
-
-				if (u->is_red == 1) {
-					// mirror case 3.1
-					u->is_red = 0;
-					k->parent->is_red = 0;
-					k->parent->parent->is_red = 1;
-					k = k->parent->parent;	
-				} 
-                
-                else {
-					if (k == k->parent->right) {
-						// mirror case 3.2.2
-						k = k->parent;
-						rotateLeft(k);
-					}
-					// mirror case 3.2.1
-					k->parent->is_red = 0;
-					k->parent->parent->is_red = 1;
-					rotateRight(k->parent->parent);
-				}
-			}
-
-			if (k == root) {
-				break;
-			}
-		}
-		root->is_red = 0;
+	RBNode* newNode(keytype key, valuetype val, bool color = true) { // color = true is color = red
+		RBNode* newnode = new RBNode;
+		newnode->left = NULL;
+		newnode->right = NULL;
+		newnode->key = key;
+		newnode->val = val;
+		newnode->color = color;
+		newnode->size = 1;
+		return newnode;
 	}
-    
-    public:
-    int sizeNum;
-    Node* root;
-    Node* TNULL;
-    int leftNum;
-    int rightNum;
-
-    Node* newNode() {
-        Node* node = new Node;
-        node->left = nullptr;
-        node->right = nullptr;
-        node->parent = nullptr;
-        node->is_red = true;
-
-        return node;
-    }
-
-    Node* newNode(keytype k, valuetype v) {
-        Node* n = new Node;
-        n->value = v;
-        n->key = k;
-        n->left = nullptr;
-        n->right = nullptr;
-
-        return n;
-    }
-    
-    public:
-    RBTree() {
-        TNULL = new Node;
-        TNULL->is_red = 0;
-        TNULL->left = nullptr;
-        TNULL->right = nullptr;
-        root = TNULL;
-        sizeNum = 0;
-        leftNum = 0;
-        rightNum = 0;
-    }
-
-    RBTree(keytype k[], valuetype V[], int s) {
-        root = nullptr;
-        sizeNum = 0;
-        leftNum = 0;
-        rightNum = 0;
-        for(int i = 0; i < s; i++) {
-            insert(k[i], V[i]);
-        }
-    }
-
-    ~RBTree() {
-
-    }
-
-    Node* searchNode(Node* root, const keytype& k) {
-        if (root == nullptr || root->key == k) {
-            return root;
-        }
-
-        else if(k < root->key) {
-            return searchNode(root->left, k);
-        }
-
-        else {
-            return searchNode(root->right, k);
-        }
-    }
-
-    valuetype *search(keytype k) {
-        return searchRec(root, k);
-    }
-
-    void insert(keytype k, valuetype v) {
-        Node *node = new Node;
-        node->key = k;
-        node->value = v;
-        node->parent = nullptr;
-        node->is_red = true;
-        node->left = TNULL;
-        node->right = TNULL;
-
-        Node* y = nullptr;
-        Node* x = this->root;
-
-        while(x != TNULL) {
-            y = x;
-            if(node->key < x->key) {
-                x = x->left;
-            }
-
-            else {
-                x = x->right;
-            }
-        }
-
-        sizeNum = sizeNum + 1;
-        std::cout << "sizeNum: " << sizeNum << std::endl;
-
-        if(root != TNULL) {
-            if(k < root->key) {
-                leftNum++;
-            }
-
-            else {
-                rightNum++;
-            }
-        }
-
-        node->parent = y;
-
-        if(y == nullptr) {
-            root = node;
-        }
-
-        else if(node->key < y->key) {
-            y->left = node;
-        }
-
-        else {
-            y->right = node;
-        }
-
-        if(node->parent == nullptr) {
-            node->is_red = false;
-            return;
-        }
-
-        if(node->parent->parent == nullptr) {
-            return;
-        }
-
-        fixViolation(node);
-    }
-
-    int remove(keytype k) {
-        Node* z = TNULL;
-        Node* x; 
-        Node* y;
-        Node* node = root;
-
-        while(node != TNULL) {
-            if(node->key == k) {
-                z = node;
-            }
-
-            if(node->key <= k) {
-                node = node->right;
-            }
-
-            else {
-                node = node->left;
-            }
-        }
-
-        if(z == TNULL) {
-            return 0;
-        }
-
-        y = z;
-
-        bool y_original_color = y->is_red;
-
-        if(z->left == TNULL) {
-            x = z->right;
-            transplant(z, z->right);
-        }
-
-        else if(z->right == TNULL) {
-            x = z->left;
-            transplant(z, z->left);
-        }
-
-        else {
-            y = findMinimum(z->right);
-            y_original_color = y->is_red;
-            x = y->right;
-
-            if(y->parent == z) {
-                x->parent = y;
-            }
-
-            else {
-                transplant(y, y->right);
-                y->right = z->right;
-                y->right->parent = y;
-            }
-
-            transplant(z, y);
-            y->left = z->left;
-            y->left->parent = y;
-            y->is_red = z->is_red;
-        }
-
-        delete z;
-        if(y_original_color == false) {
-            fixDelete(x);
-        }
-
-        return 1;
-    }
-
-
-   void rankRec(Node* curr, keytype nums[], int i) {
-        if (curr == nullptr) {
-            return;
-        }
- 
-        /* first recur on left child */
-        rankRec(curr->left, nums, i);
-
-        nums[i] = curr->key;
-        i++;
-    
-        /* now recur on right child */
-        rankRec(curr->right, nums, i);
-
-        return;
-    }
-
-    int rank(keytype k) {
-        return 0;
-    }
-
-
-    keytype select(int pos) {
-        if(pos > sizeNum - 1 || pos < 1) {
-            return 0;
-        }
-
-        else {
-            return selectRec(pos, root);
-        }
-
-        return 0;
-    }
-
-    int countRed(Node* curr) {
-        if(curr == nullptr) {
-            return 0;
-        }
-
-        int count{};
-
-        if(curr->is_red) {
-            count = 1;
-        }
-
-        count += countRed(curr->left) + countRed(curr->right);
-        return count;
-    }
-    
-    keytype *successor(keytype k) {
-        Node* temp = root;
-        keytype* out;
-
-        while(1) {
-            if(temp == nullptr) {
-                return 0;
-            }
-
-            if(temp->key == k) {
-                if(temp->right != nullptr) {
-                    temp = temp->right;
-                    out = &temp->key;
-                    return out;
-                }
-
-                else {
-                    std::cout << "No successor" << std::endl;
-                    return nullptr;
-                }
-            }
-
-            else {
-                if(k < temp->key) {
-                    temp = temp->left;
-                }
-
-                else {
-                    temp = temp->right;
-                }
-            }
-        }
-    }
-
-    keytype *predecessor(keytype k) {
-        Node* pred = nullptr;
-        Node* curr = root;
-        keytype* out;
-
-        while(curr != nullptr) {
-            if(root->key >= k) {
-                curr = curr->left;
-            }
-
-            else {
-                pred = curr;
-                curr = curr->right;
-            }
-        }
-        out = &pred->key;
-        return out;
-    }
-
-    int size() {
-        return sizeNum;
-    }
-
-    void preorder() {
-        preorderRec(root);
-        std::cout << std::endl;
-    }
-
-    void inorder() {
-        inorderRec(root);
-        std::cout << std::endl;
-    }
-
-    void postorder() {
-        postorderRec(root);
-        std::cout << std::endl;
-    }
-
-    void printBalance() {
-        std::cout << "LEFT: " << leftNum << std::endl;
-        std::cout << "RIGHT: " << rightNum << std::endl;
-    }
-
-    void help() {
-        std::cout << "FUNCTIONALITY:" << std::endl;
-        std::cout << "\t" << "search(keytype k)" << std::endl;
-        std::cout << "\t" << "insert(keytype k, valuetype v)" << std::endl;
-        std::cout << "\t" << "remove(keytype k)" << std::endl;
-        std::cout << "\t" << "rank(keytype k)" << std::endl;
-        std::cout << "\t" << "select(int pos)" << std::endl;
-        std::cout << "\t" << "successor(keytype k)" << std::endl;
-        std::cout << "\t" << "predecessor(keytype k)" << std::endl;
-        std::cout << "\t" << "size()" << std::endl;
-        std::cout << "\t" << "preorder()" << std::endl;
-        std::cout << "\t" << "inorder()" << std::endl;
-        std::cout << "\t" << "postorder()" << std::endl;
-        std::cout << "\t" << "printBalance()" << std::endl;
-        std::cout << "---------------------------------------" << std::endl;
-
-    }
+
+	void clearMemory(RBNode* curr) { // clear memory of the tree
+		if (curr == NULL) {
+			return;
+		}
+
+		clearMemory(curr->left);
+
+		if (curr->left != NULL) {
+			free(curr->left);
+		}
+
+		clearMemory(curr->right);
+
+		if (curr->right != NULL) {
+			free(curr->right);
+		}
+	}
+
+	RBNode* findMax(RBNode* root) {
+		while (root->right) {
+			root = root->right;
+		}
+
+		return root;
+	}
+
+	bool isRed(RBNode* curr) { // check if the node is red
+		if (curr == NULL) {
+			return 0;
+		}
+
+		return (curr->color);
+	}
+
+	int nodeSize(RBNode* curr) { // get the size of the node
+		if (curr == NULL) {
+			return 0;
+		}
+
+		return curr->size;
+	}
+
+	RBNode* rotateLeft(RBNode* curr) { // rotate left 
+		RBNode* x = curr->right;
+		curr->right = x->left;
+		x->left = curr;
+		x->color = x->left->color;
+		x->left->color = 1;
+
+		curr->size = nodeSize(curr->left) + nodeSize(curr->right) + 1;
+		x->size = nodeSize(x->left) + nodeSize(x->right) + 1;
+		return x;
+	}
+
+
+	RBNode* rotateRight(RBNode* curr) { // rotate right
+		RBNode* x = curr->left;
+		curr->left = x->right;
+		x->right = curr;
+		x->color = x->right->color;
+		x->right->color = 1; 
+
+		curr->size = nodeSize(curr->left) + nodeSize(curr->right) + 1;
+		x->size = nodeSize(x->left) + nodeSize(x->right) + 1;
+		return x;
+	}
+
+	void colorFlip(RBNode* curr) { // flip the color of the node
+		curr->color = !curr->color;
+		curr->left->color = !curr->left->color;
+		curr->right->color = !curr->right->color;
+	}
+
+	RBNode* insertNode(RBNode* curr, keytype key, valuetype val) { // insert the node into the tree 
+		if (curr == NULL) {
+			return newNode(key, val);
+		}
+
+		if (isRed(curr->left) && isRed(curr->right)) {
+			colorFlip(curr);
+		}
+
+		if (key < curr->key) {
+			curr->left = insertNode(curr->left, key, val);
+		}
+
+		else if (key > curr->key) {
+			curr->right = insertNode(curr->right, key, val);
+		}
+
+		else if (key == curr->key) {
+			curr->val = val;
+		}
+
+		if (isRed(curr->right)) {
+			curr = rotateLeft(curr);
+		}
+
+		if (isRed(curr->left) && isRed(curr->left->left)) {
+			curr = rotateRight(curr);
+		}
+
+		curr->size = nodeSize(curr->left) + nodeSize(curr->right) + 1;
+		return curr;
+	}
+
+	void printInOrder(RBNode* curr) { // print the tree in order recurcively 
+		if (curr == NULL) {
+			return;
+		}
+
+		printInOrder(curr->left);
+		cout << curr->key << " ";
+		printInOrder(curr->right);
+	}
+
+	void printPostOrder(RBNode* curr) { // print the tree in post order recurcively
+		if (curr == NULL) {
+			return;
+		}
+
+		printPostOrder(curr->left);
+		printPostOrder(curr->right);
+		cout << curr->key << " ";
+	}
+
+	void printPreOrder(RBNode* curr) { // print the tree in pre order recurcively
+		if (curr == NULL) {
+			return;
+		}
+
+		cout << curr->key << " ";
+		printPreOrder(curr->left);
+		printPreOrder(curr->right);
+	}
+
+	RBNode* fixUp(RBNode* curr) { // fix up the tree after deletion
+		if (isRed(curr->right)) {
+			curr = rotateLeft(curr);
+		}
+
+		if (isRed(curr->left) && isRed(curr->left->left)) {
+			curr = rotateRight(curr);
+		}
+
+		if (isRed(curr->left) && isRed(curr->right)) {
+			colorFlip(curr);
+		}
+
+		curr->size = nodeSize(curr->left) + nodeSize(curr->right) + 1;
+		return curr;
+	}
+
+
+	RBNode* moveRedRight(RBNode* curr) { // move the red node to the right
+		colorFlip(curr);
+
+		if (isRed(curr->left->left)) {
+			curr = rotateRight(curr);
+			colorFlip(curr);
+		}
+
+		return curr;
+	}
+
+
+	RBNode* moveRedLeft(RBNode* curr) { // move the red node to the left
+		colorFlip(curr);
+
+		if (isRed(curr->right->left)) {
+			curr->right = rotateRight(curr->right);
+			curr = rotateLeft(curr);
+			colorFlip(curr);
+		}
+
+		return curr;
+	}
+
+	RBNode* deleteMin(RBNode* curr) { // delete the minimum node
+		if (curr->left == NULL) {
+			return NULL;
+		}
+
+		if (!isRed(curr->left) && !isRed(curr->left->left)) {
+			curr = moveRedLeft(curr);
+		}
+
+		curr->left = deleteMin(curr->left);
+		return fixUp(curr);
+	}
+
+	RBNode* removeNode(RBNode* curr, keytype key) { // remove the node from the tree
+		if (key < curr->key) {
+			if (!isRed(curr->left) && !isRed(curr->left->left)) {
+				curr = moveRedLeft(curr);
+			}
+
+			curr->left = removeNode(curr->left, key);
+		}
+
+		else {
+			if (isRed(curr->left)) {
+				curr = rotateRight(curr);
+			}
+
+			if (key == curr->key && curr->right == NULL) {
+				return NULL;
+			}
+
+			if (!isRed(curr->right) && !isRed(curr->right->left)) {
+				curr = moveRedRight(curr);
+			}
+
+			if (key == curr->key) {
+				RBNode* x = curr->right;
+
+				while (x->left != NULL) {
+					x = x->left;
+				}
+
+				curr->key = x->key;
+				curr->val = x->val;
+				curr->right = deleteMin(curr->right);
+			}
+
+			else {
+				curr->right = removeNode(curr->right, key);
+			}
+		}
+
+		return fixUp(curr);
+	}
+
+	RBNode* copy(RBNode* curr) { // copy the tree
+		RBNode* newnode = newNode(curr->key, curr->val, curr->color);
+		if (curr->left != NULL) {
+			newnode->left = copy(curr->left);
+		}
+
+		if (curr->right != NULL) {
+			newnode->right = copy(curr->right);
+		}
+
+		newnode->size = curr->size;
+		return newnode;
+	}
+
+	valuetype* findVal(RBNode* curr, keytype key) { // returns a pointer to the value in the same node as the given key
+		if (curr == NULL) {
+			return NULL;
+		}
+
+		else if (curr->key == key) {
+			return &(curr->val);
+		}
+
+		else if (key > curr->key) {
+			return findVal(curr->right, key);
+		}
+
+		else if (key < curr->key) {
+			return findVal(curr->left, key);
+		}
+
+		return NULL;
+	}
+
+	RBNode* findNode(RBNode* curr, keytype key) { // returns a pointer to the node with the given key
+		if (curr == NULL) {
+			return NULL;
+		}
+
+		else if (curr->key == key) {
+			return curr;
+		}
+
+		else if (key > curr->key) {
+			return findNode(curr->right, key);
+		}
+
+		else if(key < curr->key) {
+			return findNode(curr->left, key);
+		}
+
+		return NULL;
+	}
+
+	int getRank(RBNode* curr, keytype key) { // returns the rank of the given key
+		if (curr == NULL) {
+			return 0;
+		}
+
+		else if (key > curr->key) {
+			return nodeSize(curr->left) + 1 + getRank(curr->right, key);
+		}
+
+		else if (key < curr->key) {
+			return getRank(curr->left, key);
+		}
+
+		else if (key == curr->key) {
+			return curr->size - nodeSize(curr->right);
+		}
+
+		else {
+			return 0;
+		}
+	}
+
+	keytype getPos(RBNode* curr, int k) { // returns the key at the given position
+		int place = nodeSize(curr->left) + 1;
+		if (k == place) {
+			return curr->key;
+		}
+
+		else if (k < place) {
+			return getPos(curr->left, k);
+		}
+
+		else {
+			return getPos(curr->right, k - place);
+		}
+	}
+
+public:
+
+	RBTree() { // constructor
+		root = NULL;
+		sizeNum = 0;
+		leftNum = 0;
+		rightNum = 0;
+	}
+
+	RBTree(keytype k[], valuetype v[], int s) { // constructor
+		root = NULL;
+		sizeNum = 0;
+		leftNum = 0;
+		rightNum = 0;
+
+		for (int i = 0; i < s; i++) {
+			root = insertNode(root, k[i], v[i]);
+			root->color = 0;
+		}
+	}
+
+	RBTree(RBNode* root) { // constructor
+		this->root = root;
+		this->root->color = 0;
+	}
+
+	~RBTree() { // destructor
+		clearMemory(root);
+		free(root);
+	}
+
+	RBTree(const RBTree& other) { // copy constructor
+		root = copy(other.root);
+	}
+
+	RBTree& operator=(const RBTree& other) { // assignment operator
+		root = copy(other.root);
+		return *this;
+	}
+
+	void insert(keytype k, valuetype v) { // parent function for insertNode algorithm
+		root = insertNode(root, k, v);
+		sizeNum++;
+		root->color = 0;
+	}
+
+	int remove(keytype k) { // parent function for removeNode algorithm
+		if (search(k) == NULL) {
+			return 0;
+		}
+
+		int s = nodeSize(root);
+		root = removeNode(root, k);
+
+		return s - nodeSize(root);
+	}
+
+	valuetype* search(keytype key) { // parent function for findVal algorithm
+		return findVal(root, key);
+	}
+
+	int rank(keytype k) { // Returns the rank of the key k in the tree. Returns 0 if the key k is not found
+		return getRank(root, k);
+	}
+
+	keytype select(int pos) { // Returns the key of the node at position pos in the tree
+		if (pos > nodeSize(root) || pos < 1) {
+			return 0;
+		}
+
+		return getPos(root, pos);
+	}
+
+	keytype* successor(keytype k) { // Returns the key of the successor of k in the tree. Returns NULL if k has no successor
+		RBNode* succ = nullptr;
+		RBNode* curr = root;
+
+		while (curr != nullptr) {
+			if (curr->key < k) {
+				curr = curr->right;
+			}
+
+			else if (curr->key > k) {
+				succ = curr;
+				curr = curr->left;
+			}
+			else {
+				if (curr->right != nullptr) {
+					succ = curr->right;
+
+					while (succ->left != nullptr) {
+						succ = succ->left;
+					}
+				}
+				return &succ->key;
+			}
+		}
+
+		return &succ->key;
+	}
+
+	keytype* predecessor(keytype k) { // Returns a pointer to the key after k in the tree. Returns NULL if no successor exists
+		RBNode* pred = NULL;
+		RBNode* curr = root;
+		while (curr != NULL) {
+			if (curr->key > k) {
+				curr = curr->left;
+			}
+
+			else if (curr->key < k) {
+				pred = curr;
+				curr = curr->right;
+			}
+
+			else {
+				if (curr->left != NULL) {
+					pred = curr->left;
+					while (pred->right != NULL) {
+						pred = pred->right;
+					}
+				}
+				return &pred->key;
+			}
+		}
+		return &pred->key;
+	}
+
+	int size() { // Returns the size of the tree
+		return nodeSize(root);
+	}
+
+	void preorder() { // Prints the preorder of the tree
+		printPreOrder(root);
+		cout << endl;
+	}
+
+	void inorder() { // Prints the inorder of the tree
+		printInOrder(root);
+		cout << endl;
+	}
+
+	void postorder() { // Prints the post order of the tree
+		printPostOrder(root);
+		cout << endl;
+	}
+
+	int countRed(RBNode* curr) { // Counts and returns the number of red nodes in the tree
+		if (curr == nullptr) {
+			return 0;
+		}
+
+		int count{};
+
+		if (curr->is_red) {
+			count = 1;
+		}
+
+		count += countRed(curr->left) + countRed(curr->right);
+		return count;
+	}
+	
+	void help() { // Helper function for user
+		std::cout << "FUNCTIONALITY:" << std::endl;
+		std::cout << "\t" << "search(keytype k)" << std::endl;
+		std::cout << "\t" << "insert(keytype k, valuetype v)" << std::endl;
+		std::cout << "\t" << "remove(keytype k)" << std::endl;
+		std::cout << "\t" << "rank(keytype k)" << std::endl;
+		std::cout << "\t" << "select(int pos)" << std::endl;
+		std::cout << "\t" << "successor(keytype k)" << std::endl;
+		std::cout << "\t" << "predecessor(keytype k)" << std::endl;
+		std::cout << "\t" << "size()" << std::endl;
+		std::cout << "\t" << "preorder()" << std::endl;
+		std::cout << "\t" << "inorder()" << std::endl;
+		std::cout << "\t" << "postorder()" << std::endl;
+		std::cout << "\t" << "printBalance()" << std::endl;
+		std::cout << "---------------------------------------" << std::endl;
+
+	}
 };
