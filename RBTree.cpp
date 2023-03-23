@@ -37,13 +37,13 @@ private:
 		clearMemory(curr->left);
 
 		if (curr->left != NULL) {
-			free(curr->left);
+			delete curr->left;
 		}
 
 		clearMemory(curr->right);
 
 		if (curr->right != NULL) {
-			free(curr->right);
+			delete curr->right;
 		}
 	}
 
@@ -381,7 +381,6 @@ public:
 
 	~RBTree() { // destructor
 		clearMemory(root);
-		free(root);
 	}
 
 	RBTree(const RBTree& other) { // copy constructor
@@ -427,10 +426,10 @@ public:
 	}
 
 	keytype* successor(keytype k) { // Returns the key of the successor of k in the tree. Returns NULL if k has no successor
-		RBNode* succ = nullptr;
+		RBNode* succ = NULL;
 		RBNode* curr = root;
 
-		while (curr != nullptr) {
+		while (curr != NULL) {
 			if (curr->key < k) {
 				curr = curr->right;
 			}
@@ -440,10 +439,10 @@ public:
 				curr = curr->left;
 			}
 			else {
-				if (curr->right != nullptr) {
+				if (curr->right != NULL) {
 					succ = curr->right;
 
-					while (succ->left != nullptr) {
+					while (succ->left != NULL) {
 						succ = succ->left;
 					}
 				}
@@ -500,11 +499,11 @@ public:
 	}
 
 	int countRed(RBNode* curr) { // Counts and returns the number of red nodes in the tree
-		if (curr == nullptr) {
+		if (curr == NULL) {
 			return 0;
 		}
 
-		int count{};
+		int count = 0;
 
 		if (curr->is_red) {
 			count = 1;
