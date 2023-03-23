@@ -59,7 +59,7 @@ int main(){
 	 cout <<*(T1.successor("C"))<<endl;
 	// //Should output D
 	
-	 cout <<*(T1.predecessor("C"))<<endl;
+	 cout <<*(T1.predecessor("A"))<<endl;
 	// //Should output B		
 	
 	K[0] = "J";
